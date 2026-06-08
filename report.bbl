@@ -1,0 +1,23 @@
+\begin{thebibliography}{1}
+
+\bibitem{arrigo2016computation}
+Francesca Arrigo, Michele Benzi, and Caterina Fenu.
+\newblock Computation of generalized matrix functions.
+\newblock {\em SIAM Journal on Matrix Analysis and Applications}, 37(3):836--860, 2016.
+
+\bibitem{benzi2023computation}
+Michele Benzi, Michele Rinelli, and Igor Simunec.
+\newblock Computation of the von neumann entropy of large matrices via trace estimators and rational krylov methods.
+\newblock {\em Numerische Mathematik}, 155(3):377--414, 2023.
+
+\bibitem{benzi2026estimation}
+Michele Benzi, Michele Rinelli, and Igor Simunec.
+\newblock Estimation of spectral gaps for sparse symmetric matrices.
+\newblock {\em Numerische Mathematik}, 158:847--888, 2026.
+
+\bibitem{saad2003iterative}
+Yousef Saad.
+\newblock {\em Iterative methods for sparse linear systems}.
+\newblock SIAM, 2nd edition, 2003.
+
+\end{thebibliography}
