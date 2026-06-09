@@ -6,94 +6,133 @@
 \usepackage{geometry}
 \geometry{margin=1in}
 
-\title{Estimation of Schatten $p$-Norms of Large Matrices \\ using Krylov Subspace Methods}
-\author{Martin}
-\date{\today}
+\title{Trace and Spectral Norms of Tensor Powers \\ using Krylov Subspace Methods}
+\author{Martin Juhász}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-The exact computation of Schatten $p$-norms for large-scale matrices poses a significant computational challenge due to the $\mathcal{O}(N^3)$ complexity of the Singular Value Decomposition (SVD). In this report, we discuss mathematical foundations and efficient algorithmic strategies to estimate these norms, focusing specifically on highly structured but rugged spectra arising from linear combinations of tensor powers. By unifying stochastic trace estimators with the Golub-Kahan Bidiagonalization (GKB) method, we reduce the computational memory footprint to $\mathcal{O}(N)$ while maintaining numerical stability. We validate our approach against exact values derived from SU(3) representation theory, presenting numerical results and performance scaling that highlight the absolute necessity of matrix-free Krylov architectures for high-dimensional tensor networks.
+  The exact computation of Schatten $p$-norms for large-scale matrices poses a significant computational challenge due to the $\mathcal{O}(N^3)$ complexity of the Singular Value Decomposition (SVD). In this report, we discuss mathematical foundations and efficient algorithmic strategies to estimate these norms, focusing specifically on highly structured but rugged spectra arising from linear combinations of tensor powers. By unifying stochastic trace estimators with the Golub-Kahan Bidiagonalization (GKB) method, we reduce the computational memory footprint to $\mathcal{O}(N)$ while maintaining numerical stability. We validate our approach against exact values derived from SU(3) representation theory, presenting numerical results and performance scaling.
 \end{abstract}
 
 \section{Introduction}
 
 The Schatten $p$-norm of a matrix $A \in \mathbb{C}^{N \times N}$ is defined as the $\ell_p$-norm of its singular values. Let $\sigma_1, \sigma_2, \dots, \sigma_N$ be the singular values of $A$. The Schatten $p$-norm is given by:
 \begin{equation}
-    \|A\|_p = \left( \sum_{i=1}^N \sigma_i^p \right)^{1/p}.
+  \|A\|_p = \left( \sum_{i=1}^N \sigma_i^p \right)^{1/p}.
 \end{equation}
-For $p=1$, this corresponds to the trace norm; and as $p \to \infty$, it converges to the spectral norm (the largest singular value). 
+For $p=1$, this corresponds to the trace norm; and as $p \to \infty$, it converges to the spectral norm (the largest singular value).
 
 Evaluating $\|A\|_p$ exactly requires full knowledge of the singular spectrum, which is typically acquired via the SVD. For large dimensions, this approach is computationally prohibitive both in time and memory. Therefore, we utilize advanced numerical linear algebra techniques, specifically randomized trace estimators and Krylov subspace methods, to approximate these norms efficiently \cite{benzi2023computation, arrigo2016computation}. In particular, we focus on evaluating linear combinations of Kronecker powers, $M = c_1 A^{\otimes n} + c_2 B^{\otimes n}$, where the spectrum is highly clustered and standard decomposition solvers often fail or stagnate.
 
 \section{Theoretical Background}
 
-\subsection{Matrix Functions and Trace Estimation}
+\subsection{Generalized Matrix Functions and Trace Estimation}
 
-For $p=1$, the trace norm can be reformulated as the trace of a specific matrix function. Since the singular values of $M$ are the square roots of the eigenvalues of the Hermitian positive semi-definite matrix $M^\dagger M$, we can write:
+Evaluating the exact Schatten norms relies on the singular values of $M$. We can formalize this via the concept of a \textit{generalized matrix function}. As detailed by Arrigo et al. \cite{arrigo2016computation}, while a standard matrix function applies to the eigenvalues of an operator, a generalized matrix function $f^\diamond(M)$ applies a scalar function $f$ to its singular values, such that $f^\diamond(M) = U f(\Sigma) V^\dagger$, where $M = U \Sigma V^\dagger$ represents the Singular Value Decomposition.
+
+For $p=1$, the trace norm fundamentally evaluates the trace of the generalized matrix function induced by $f(\sigma) = \sigma$. Because the singular values of $M$ are the square roots of the eigenvalues of the Hermitian positive semi-definite matrix $M^\dagger M$, we can equivalently write:
 \begin{equation}
-    \|M\|_1 = \sum_{i=1}^N \sigma_i = \mathrm{tr}\left( \sqrt{M^\dagger M} \right).
+  \|M\|_1 = \sum_{i=1}^N \sigma_i = \mathrm{tr}\left( \sqrt{M^\dagger M} \right).
 \end{equation}
+
 Evaluating the trace of a large implicit matrix can be effectively handled using Hutchinson's stochastic trace estimator. For a symmetric or Hermitian matrix $X$, Hutchinson's estimator approximates the trace as:
 \begin{equation}
-    \mathrm{tr}(X) \approx \frac{1}{s} \sum_{i=1}^s v_i^\dagger X v_i,
+  \mathrm{tr}(X) \approx \frac{1}{s} \sum_{i=1}^s v_i^\dagger X v_i,
 \end{equation}
 where $v_1, \dots, v_s$ are random vectors with independent identically distributed entries satisfying $\mathbb{E}[v_i v_i^\dagger] = I$. Typically, complex Rademacher (random signs) distributions are employed. This reduces the trace computation to evaluating bilinear forms $v_i^\dagger \sqrt{M^\dagger M} v_i$ \cite{benzi2026estimation}.
 
-\subsection{Krylov Subspace Projection}
+\subsection{Krylov Subspace Projection and Quadrature}
 
-The remaining challenge is to evaluate the bilinear form $v^\dagger \sqrt{M^\dagger M} v$ (for $p=1$) and estimate the maximum singular value (for $p=\infty$) without explicitly computing $M^\dagger M$ or its full spectrum. Standard approaches like Stochastic Lanczos Quadrature (SLQ) apply the Lanczos process directly to $M^\dagger M$. However, this explicitly squares the condition number of the operator, rapidly exacerbating floating-point roundoff errors and causing a loss of orthogonality in the Krylov basis.
+The remaining challenge is to evaluate the bilinear form $v^\dagger \sqrt{M^\dagger M} v$ (for $p=1$) and estimate the maximum singular value (for $p=\infty$) without explicitly computing $M^\dagger M$ or its full spectrum.
 
-To maintain numerical stability, we instead project the high-dimensional operator $M$ onto a low-dimensional subspace using bidiagonalization methods that act strictly on $M$ and $M^\dagger$, avoiding the direct formulation of $M^\dagger M$.
+Standard approaches apply the Lanczos process directly to $M^\dagger M$. The Lanczos algorithm implicitly generates orthogonal polynomials with respect to the spectral measure of $M^\dagger M$ at the starting vector $v$. Evaluating the matrix function on the resulting low-dimensional $\ell \times \ell$ symmetric tridiagonal matrix $T_\ell$ (which represents the projection of $M^\dagger M$ onto the $\ell$-dimensional Krylov subspace) is mathematically equivalent to applying an $\ell$-point \textbf{Gaussian quadrature rule} to the Riemann-Stieltjes integral of $f(\lambda)$ over the spectral distribution \cite{benzi2023computation}.
 
-\section{Algorithmic Approach: Golub-Kahan Bidiagonalization (GKB)}
+Functions such as $f(x) = \sqrt{x}$ are non-analytic near zero, making them notoriously difficult for standard global polynomial approximations. However, Krylov projection successfully bypasses this issue because it automatically adapts to the discrete clustering of the spectrum. The Ritz values (the eigenvalues of the projected matrix $T_\ell$) naturally concentrate around the clustered tensor eigenvalues, allowing for rapid convergence even for non-smooth functions over highly structured, rugged spectra \cite{benzi2026estimation}.
+
+Despite its theoretical elegance, applying Lanczos directly to $M^\dagger M$ explicitly squares the condition number of the operator, causing a rapid loss of orthogonality in the Krylov basis. To maintain numerical stability, we instead project the high-dimensional operator $M$ onto a low-dimensional subspace using bidiagonalization methods that act strictly on $M$ and $M^\dagger$, avoiding the direct formulation of $M^\dagger M$.
+
+\section{Golub-Kahan Bidiagonalization (GKB)}
 
 We unify the estimation of both the trace norm and the spectral norm under the Golub-Kahan Bidiagonalization (GKB) process. The GKB algorithm iteratively builds orthogonal bases $U_\ell \in \mathbb{C}^{N \times \ell}$ and $V_\ell \in \mathbb{C}^{N \times \ell}$ using a starting vector $v$ such that:
 \begin{equation}
-    M V_\ell = U_\ell B_\ell, \quad M^\dagger U_\ell = V_\ell B_\ell^\dagger + \gamma_\ell u_{\ell+1} e_\ell^T,
+  M V_\ell = U_\ell B_\ell, \quad M^\dagger U_\ell = V_\ell B_\ell^\dagger + \gamma_\ell u_{\ell+1} e_\ell^T,
 \end{equation}
-where $B_\ell$ is a small $\ell \times \ell$ upper bidiagonal matrix. 
+where $B_\ell$ is a small $\ell \times \ell$ upper bidiagonal matrix representing the projected operator, $u_{\ell+1}$ is the next orthogonal basis vector generated by the iteration, $\gamma_\ell$ is a normalization scalar representing the residual norm, and $e_\ell$ is the $\ell$-th standard basis vector in $\mathbb{R}^\ell$.
 
-\paragraph{Trace Norm ($p=1$):} 
-The tridiagonal matrix that would be generated by applying Lanczos to $M^\dagger M$ is algebraically equivalent to $T_\ell = B_\ell^\dagger B_\ell$. According to Gaussian quadrature rules \cite{arrigo2016computation}, we can estimate the bilinear form by evaluating the matrix square root on this dimensionally reduced matrix:
+\paragraph{Trace Norm ($p=1$):}
+Arrigo et al. demonstrated that one can construct the necessary Gaussian quadrature rule without ever forming $M^\dagger M$ \cite{arrigo2016computation}. The tridiagonal matrix that would be generated by applying Lanczos to $M^\dagger M$ is algebraically equivalent to $T_\ell = B_\ell^\dagger B_\ell$. The singular values of the bidiagonal matrix $B_\ell$ serve exactly as the Gaussian quadrature nodes, and the first components of its singular vectors provide the quadrature weights. We can therefore estimate the bilinear form by evaluating the matrix square root on this dimensionally reduced matrix:
 \begin{equation}
-    v^\dagger \sqrt{M^\dagger M} v \approx \|v\|_2^2 \left[ \sqrt{B_\ell^\dagger B_\ell} \right]_{1,1}.
+  v^\dagger \sqrt{M^\dagger M} v \approx \|v\|_2^2 \left[ \sqrt{B_\ell^\dagger B_\ell} \right]_{1,1}.
 \end{equation}
 Averaging this result over $s$ random Hutchinson samples yields the trace norm.
 
 \paragraph{Spectral Norm ($p=\infty$):}
-For the spectral norm, we bypass external solvers (which may fail to converge on highly clustered, complex spectra) and utilize the properties of the GKB projection itself. The largest singular value of the projected matrix $B_\ell$ provides a strict lower-bound approximation of the largest singular value of $M$. By taking the maximum singular value of $B_\ell$ observed across the $s$ random starting vectors, we obtain a highly stable and computationally inexpensive estimate of $\|M\|_\infty$.
+For the spectral norm, we strictly seek the maximum singular value of $M$. While it is theoretically possible to use the largest singular value of the projected matrix $B_\ell$ from the GKB process as a lower-bound estimate, we instead rely on ARPACK's Implicitly Restarted Lanczos Method (IRLM). Because the spectral norm purely evaluates the single extremal singular value, it does not require Hutchinson trace averaging over multiple random vectors.
+
+When applying IRLM, the algorithm constructs a Krylov subspace and extracts its eigenvalues (known as Ritz values). These Ritz values dynamically approximate the eigenvalues of the original operator. For extremal eigenvalues, the corresponding Ritz values rapidly converge to the true maximum boundaries of the spectrum. Applying IRLM directly converges exceptionally fast for this dominant eigenvalue and is significantly more computationally efficient than executing a full GKB projection for this specific task.
 
 \section{Preliminary Results}
 
-To empirically analyze the GKB methodology, we evaluated the algorithms on linear combinations of random $3 \times 3$ complex density matrices: $M = 1.0 A^{\otimes n} - 0.5 B^{\otimes n}$. This formulation allowed us to scale the matrix dimension $N = 3^n$. 
+To empirically analyze the GKB methodology, we evaluated the algorithms on linear combinations of random $3 \times 3$ complex density matrices: $M = 1.0 A^{\otimes n} - 0.5 B^{\otimes n}$. This formulation allowed us to scale the matrix dimension $N = 3^n$.
 
 \paragraph{Accuracy Verification:}
-Traditional dense matrix constructions run out of memory (OOM) at large dimensions, making exact accuracy verification impossible. To circumvent this, we utilized a custom calculator based on SU(3) representation theory (\texttt{tensorpow}) to acquire exact, analytical ground-truth norms. This allowed us to explicitly evaluate the relative error of the GKB estimator at massive tensor powers, specifically at $n=8$ ($N=6,561$) and $n=12$ ($N=531,441$).
+Traditional dense matrix constructions run out of memory (OOM) at large dimensions, making exact accuracy verification impossible. To circumvent this, we utilized a custom mathematical framework developed as part of my master's thesis (\texttt{tensorpow}). This approach leverages SU(3) representation theory to transform the operator into a block-diagonal representation with very high multiplicities. This dramatically reduces the computational complexity, yielding a very fast and extremely low-memory method to acquire exact, analytical ground-truth norms. This allowed me to explicitly evaluate the relative error of the Krylov estimators at massive tensor powers, specifically at $n=8$ ($N=6,561$) and $n=11$ ($N=177,147$).
+
+As illustrated in Figures \ref{fig:accuracy_n8_p1} and \ref{fig:accuracy_n8_pinf}, the tested values for the number of Hutchinson samples ($s$) and maximum Krylov steps ($m$) yield sufficient convergence for $n=8$. However, when scaling up to $n=11$ (Figure \ref{fig:accuracy_n11_p1}), the relative error for the trace norm ($p=1$) remains unacceptably high, indicating that $s$ and $m$ must be significantly increased for larger systems. 
+
 
 \begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{speed_comparison.png}
-    \caption{Speed comparison of dense SVD versus the matrix-free GKB estimator over increasing tensor powers $n$.}
-    \label{fig:speed}
+  \centering
+  \includegraphics[width=0.9\linewidth]{accuracy_n8_p1.png}
+  \caption{Relative error of the estimator for the trace norm ($p=1$) at $n=8$ ($N=6,561$). Note the logarithmic scale on the y-axis.}
+  \label{fig:accuracy_n8_p1}
 \end{figure}
 
 \begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{memory_analytical_comparison.png}
-    \caption{Analytical peak memory consumption, highlighting the theoretical $\mathcal{O}(N)$ scaling of the GKB 3-term recurrence compared to the $\mathcal{O}(N^2)$ quadratic cost of exact dense representations.}
-    \label{fig:memory}
+  \centering
+  \includegraphics[width=0.5\linewidth]{accuracy_n8_pinf.png}
+  \caption{Relative error of the estimator for the spectral norm ($p=\infty$) at $n=8$ ($N=6,561$). Note the logarithmic scale on the y-axis.}
+  \label{fig:accuracy_n8_pinf}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.9\linewidth]{accuracy_n11_p1.png}
+  \caption{Relative error scaled up to $n=11$ ($N=177,147$) for the trace norm ($p=1$), shown on a logarithmic y-axis.}
+  \label{fig:accuracy_n11_p1}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.5\linewidth]{accuracy_n11_pinf.png}
+  \caption{Relative error scaled up to $n=11$ ($N=177,147$) for the spectral norm ($p=\infty$), shown on a logarithmic y-axis.}
+  \label{fig:accuracy_n11_pinf}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{speed_comparison.png}
+  \caption{Speed comparison of dense SVD versus the matrix-free GKB estimator over increasing tensor powers $n$ (y-axis is in log scale).}
+  \label{fig:speed}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{memory_analytical_comparison.png}
+  \caption{Analytical peak memory consumption (logarithmic y-axis), highlighting the theoretical $\mathcal{O}(N)$ scaling of the GKB 3-term recurrence compared to the $\mathcal{O}(N^2)$ quadratic cost of exact dense representations.}
+  \label{fig:memory}
 \end{figure}
 
 \paragraph{Performance Scaling:}
-As shown in Figure \ref{fig:speed} and Figure \ref{fig:memory}, the $\mathcal{O}(N^3)$ computational time and $\mathcal{O}(N^2)$ spatial constraints of the exact dense SVD make it intractable for large systems. In our empirical runtime tests, the dense SVD was capped at $n=8$. At $n=9$ ($N=19,683$), the exact dense SVD computation required nearly 40 minutes ($\sim 2388$ seconds) for a single execution, and inevitably triggered OOM limits at $n \ge 10$. 
+As shown in Figure \ref{fig:speed} and Figure \ref{fig:memory}, the $\mathcal{O}(N^3)$ computational time and $\mathcal{O}(N^2)$ spatial constraints of the exact dense SVD make it intractable for large systems. In our empirical runtime tests, the dense SVD was capped at $n=8$. At $n=9$ ($N=19,683$), the exact dense SVD computation required nearly 40 minutes ($\sim 2388$ seconds) for a single execution, and inevitably triggered OOM limits at $n \ge 10$.
 
 Conversely, the GKB method successfully bypasses these bottlenecks. Because GKB relies solely on a 3-term recurrence relation, its memory footprint remains strictly bounded at $\mathcal{O}(N)$, mathematically independent of the number of Hutchinson samples ($s$) or maximum Krylov steps ($m$).
 
-\section{Future Work}
-In upcoming iterations, we intend to execute exhaustive large-scale experiments to determine the tightest bounds on error oscillations and assess robust stopping criteria (including consecutive difference estimations) for arbitrary non-Hermitian graphs and density matrices.
+\section{Possible Further Work}
+A natural progression would be to execute exhaustive large-scale experiments to determine the tightest bounds on error oscillations and assess robust stopping criteria for arbitrary density matrices.
 
 \bibliographystyle{plain}
 \bibliography{citation}

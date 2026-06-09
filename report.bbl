@@ -15,9 +15,4 @@ Michele Benzi, Michele Rinelli, and Igor Simunec.
 \newblock Estimation of spectral gaps for sparse symmetric matrices.
 \newblock {\em Numerische Mathematik}, 158:847--888, 2026.
 
-\bibitem{saad2003iterative}
-Yousef Saad.
-\newblock {\em Iterative methods for sparse linear systems}.
-\newblock SIAM, 2nd edition, 2003.
-
 \end{thebibliography}

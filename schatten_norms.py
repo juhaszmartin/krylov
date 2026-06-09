@@ -203,24 +203,29 @@ def estimate_schatten1_gkb(
 
 def estimate_schatten_inf_arpack(
     linear_operator,
-    tol=1e-10,
-    maxiter=1000,
+    m_steps=30,
 ):
-    """
-    Estimate the Schatten-infinity norm
-    (largest singular value)
-    using ARPACK.
-    """
-
-    _, svals, _ = svds(
-        linear_operator,
-        k=1,
-        which="LM",
-        tol=tol,
-        maxiter=maxiter,
-    )
-
-    return float(np.real(svals[0]))
+    import scipy.sparse.linalg
+    
+    def matvec_M_dag_M(v):
+        return linear_operator.rmatvec(linear_operator.matvec(v))
+        
+    M_dag_M = LinearOperator((linear_operator.shape[0], linear_operator.shape[1]), matvec=matvec_M_dag_M)
+    
+    try:
+        evals = scipy.sparse.linalg.eigsh(
+            M_dag_M,
+            k=1,
+            which="LM",
+            tol=1e-12,
+            maxiter=m_steps,
+            return_eigenvectors=False
+        )
+        return float(np.sqrt(np.abs(evals[0])))
+    except scipy.sparse.linalg.ArpackNoConvergence as e:
+        if len(e.eigenvalues) > 0:
+            return float(np.sqrt(np.abs(e.eigenvalues[0])))
+        return 0.0
 
 def estimate_schatten_norm(
     linear_operator,
@@ -248,6 +253,7 @@ def estimate_schatten_norm(
     if p == np.inf:
         return estimate_schatten_inf_arpack(
             linear_operator,
+            m_steps=m_steps,
         )
 
     raise ValueError(
@@ -296,6 +302,9 @@ def run_accuracy_experiment(matrices, coeffs, n_krons, p_values, m_values, s_val
             
             best_err = min(results[key_m]["error"])
             print(f"    GKB vs m (s={s_fixed}): best rel error = {best_err:.2e}")
+
+            if p == np.inf:
+                continue # Skip Hutchinson sweep for p=inf
 
             # Vary Hutchinson samples (s)
             key_s = (n, p, "gkb_vs_s")
@@ -389,34 +398,53 @@ def plot_accuracy_results(results, m_fixed, s_fixed, save_dir="."):
         p_label = "inf" if p == np.inf else "1"
         title_prefix = "Trace Norm (p=1)" if p == 1 else "Spectral Norm (p=∞)"
         
-        fig, axes = plt.subplots(1, 2, figsize=(13, 5))
-        fig.suptitle(f"{title_prefix} Accuracy | Linear Combo (3^{n}×3^{n})", fontweight="bold")
+        if p == np.inf:
+            fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+            fig.suptitle(f"{title_prefix} Accuracy | Linear Combo (3^{n}×3^{n})", fontweight="bold")
+            
+            key_m = (n, p, "gkb_vs_m")
+            if key_m in results:
+                ax.semilogy(results[key_m]["m"], results[key_m]["error"], "o-", color="#FF9800", linewidth=2, markersize=8)
+                ax.set_xlabel("Lanczos Iterations (m)", fontsize=11)
+                ax.set_ylabel("Relative Error", fontsize=11)
+                ax.set_title("Varying Iterations", fontsize=10)
+                ax.grid(True, alpha=0.3)
+                ax.set_xlim(min(results[key_m]["m"]), max(results[key_m]["m"]))
+            
+            plt.tight_layout()
+            fname = f"{save_dir}/accuracy_n{n}_p{p_label}.png"
+            plt.savefig(fname, dpi=150, bbox_inches="tight")
+            plt.close()
+            print(f"  Saved: {fname}")
+        else:
+            fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+            fig.suptitle(f"{title_prefix} Accuracy | Linear Combo (3^{n}×3^{n})", fontweight="bold")
 
-        # Varying GKB steps
-        key_m = (n, p, "gkb_vs_m")
-        if key_m in results:
-            axes[0].semilogy(results[key_m]["m"], results[key_m]["error"], "o-", color="#FF9800", linewidth=2, markersize=8)
-            axes[0].set_xlabel("GKB Steps (m)", fontsize=11)
-            axes[0].set_ylabel("Relative Error", fontsize=11)
-            axes[0].set_title(f"Varying GKB Steps (Fixed s={s_fixed})", fontsize=10)
-            axes[0].grid(True, alpha=0.3)
-            axes[0].set_xlim(min(results[key_m]["m"]), max(results[key_m]["m"]))
+            # Varying GKB steps
+            key_m = (n, p, "gkb_vs_m")
+            if key_m in results:
+                axes[0].semilogy(results[key_m]["m"], results[key_m]["error"], "o-", color="#FF9800", linewidth=2, markersize=8)
+                axes[0].set_xlabel("GKB Steps (m)", fontsize=11)
+                axes[0].set_ylabel("Relative Error", fontsize=11)
+                axes[0].set_title(f"Varying GKB Steps (Fixed s={s_fixed})", fontsize=10)
+                axes[0].grid(True, alpha=0.3)
+                axes[0].set_xlim(min(results[key_m]["m"]), max(results[key_m]["m"]))
 
-        # Varying Hutchinson samples
-        key_s = (n, p, "gkb_vs_s")
-        if key_s in results:
-            axes[1].semilogy(results[key_s]["s"], results[key_s]["error"], "s-", color="#E91E63", linewidth=2, markersize=8)
-            axes[1].set_xlabel("Hutchinson Samples (s)", fontsize=11)
-            axes[1].set_ylabel("Relative Error", fontsize=11)
-            axes[1].set_title(f"Varying Samples (Fixed m={m_fixed})", fontsize=10)
-            axes[1].grid(True, alpha=0.3)
-            axes[1].set_xlim(min(results[key_s]["s"]), max(results[key_s]["s"]))
+            # Varying Hutchinson samples
+            key_s = (n, p, "gkb_vs_s")
+            if key_s in results:
+                axes[1].semilogy(results[key_s]["s"], results[key_s]["error"], "s-", color="#E91E63", linewidth=2, markersize=8)
+                axes[1].set_xlabel("Hutchinson Samples (s)", fontsize=11)
+                axes[1].set_ylabel("Relative Error", fontsize=11)
+                axes[1].set_title(f"Varying Samples (Fixed m={m_fixed})", fontsize=10)
+                axes[1].grid(True, alpha=0.3)
+                axes[1].set_xlim(min(results[key_s]["s"]), max(results[key_s]["s"]))
 
-        plt.tight_layout()
-        fname = f"{save_dir}/accuracy_n{n}_p{p_label}.png"
-        plt.savefig(fname, dpi=150, bbox_inches="tight")
-        plt.close()
-        print(f"  Saved: {fname}")
+            plt.tight_layout()
+            fname = f"{save_dir}/accuracy_n{n}_p{p_label}.png"
+            plt.savefig(fname, dpi=150, bbox_inches="tight")
+            plt.close()
+            print(f"  Saved: {fname}")
 
 def plot_scaling_results(speed_results, save_dir="."):
     """Generate speed comparison plot."""
@@ -523,7 +551,7 @@ def main():
     s_values = [2, 5, 10, 20, 50]  # Hutchinson samples
     
     print(f"\nMatrix dimension: d=3")
-    print(f"Linear combination: M = 1.0·A^⊗n + (-0.5)·B^⊗n")
+    print(f"Linear combination: M = 1.0*A^(x)n + (-0.5)*B^(x)n")
     print(f"Target tensor powers: n = {n_krons_acc}")
     print(f"GKB steps range: m = {m_values}")
     print(f"Hutchinson samples range: s = {s_values}")
