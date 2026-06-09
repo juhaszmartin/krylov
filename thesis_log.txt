@@ -1,0 +1,255 @@
+============================================================
+  SCHATTEN p-NORM ESTIMATION VIA KRYLOV METHODS
+  Using 3x3 complex random density matrices (rho^(x)n)
+============================================================
+
+Density matrix rho (3x3):
+  Hermitian check: ||rho - rho^dag||_F = 0.00e+00
+  Trace: 1.0000000000
+  Eigenvalues: [0.01767738 0.19557093 0.78675169]
+  PSD check: min eigenvalue = 1.77e-02
+
+============================================================
+  ACCURACY EXPERIMENTS
+============================================================
+
+============================================================
+  Kronecker power n=4, matrix size N=81×81
+============================================================
+
+  --- p = 1 ---
+  Exact ||A||_1 = 1.00000000
+  SLQ vs m: best rel error = 3.14e-02
+  SLQ vs s: best rel error = 1.14e-02
+  GKB vs l: best rel error = 1.24e-02
+  GKB vs K: best rel error = 3.49e-02
+
+  --- p = 2 ---
+  Exact ||A||_2 = 0.43235713
+  SLQ vs m: best rel error = 1.01e-02
+  SLQ vs s: best rel error = 9.89e-03
+  GKB vs l: best rel error = 1.26e+00
+  GKB vs K: best rel error = 1.19e+00
+
+  --- p = inf ---
+  Exact ||A||_inf = 0.38313403
+  SLQ vs m: best rel error = 0.00e+00
+  SLQ vs s: best rel error = 1.45e-16
+  GKB vs l: best rel error = 1.45e-16
+  GKB vs K: best rel error = 1.45e-16
+
+============================================================
+  Kronecker power n=5, matrix size N=243×243
+============================================================
+
+  --- p = 1 ---
+  Exact ||A||_1 = 1.00000000
+  SLQ vs m: best rel error = 6.16e-03
+  SLQ vs s: best rel error = 1.82e-02
+  GKB vs l: best rel error = 4.82e-03
+  GKB vs K: best rel error = 1.30e-02
+
+  --- p = 2 ---
+  Exact ||A||_2 = 0.35059304
+  SLQ vs m: best rel error = 1.16e-02
+  SLQ vs s: best rel error = 3.20e-02
+  GKB vs l: best rel error = 1.83e+00
+  GKB vs K: best rel error = 1.66e+00
+
+  --- p = inf ---
+  Exact ||A||_inf = 0.30143134
+  SLQ vs m: best rel error = 5.52e-16
+  SLQ vs s: best rel error = 1.84e-16
+  GKB vs l: best rel error = 1.84e-16
+  GKB vs K: best rel error = 5.52e-16
+
+
+Generating accuracy plots...
+  Saved: ./accuracy_n4_p1.png
+  Saved: ./accuracy_n4_p2.png
+  Saved: ./accuracy_n4_pinf.png
+  Saved: ./accuracy_n5_p1.png
+  Saved: ./accuracy_n5_p2.png
+  Saved: ./accuracy_n5_pinf.png
+  Saved: ./combined_accuracy_n4.png
+  Saved: ./combined_accuracy_n5.png
+
+============================================================
+  SPEED EXPERIMENTS
+============================================================
+  Speed test: n=2, N=9, p=1 ... brute=0.0000s, SLQ=0.0169s, GKB=0.0192s
+  Speed test: n=2, N=9, p=2 ... brute=0.0000s, SLQ=0.0175s, GKB=0.0198s
+  Speed test: n=2, N=9, p=inf ... brute=0.0000s, SLQ=0.0011s, GKB=0.0011s
+  Speed test: n=3, N=27, p=1 ... brute=0.0001s, SLQ=0.0240s, GKB=0.0262s
+  Speed test: n=3, N=27, p=2 ... brute=0.0001s, SLQ=0.0240s, GKB=0.0260s
+  Speed test: n=3, N=27, p=inf ... brute=0.0001s, SLQ=0.0028s, GKB=0.0028s
+  Speed test: n=4, N=81, p=1 ... brute=0.0030s, SLQ=0.0324s, GKB=0.0335s
+  Speed test: n=4, N=81, p=2 ... brute=0.0060s, SLQ=0.0459s, GKB=0.0363s
+  Speed test: n=4, N=81, p=inf ... brute=0.0061s, SLQ=0.0039s, GKB=0.0044s
+  Speed test: n=5, N=243, p=1 ... brute=0.2423s, SLQ=0.0329s, GKB=0.0432s
+  Speed test: n=5, N=243, p=2 ... brute=0.2652s, SLQ=0.0441s, GKB=0.0464s
+  Speed test: n=5, N=243, p=inf ... brute=0.1629s, SLQ=0.0066s, GKB=0.0061s
+  Speed test: n=6, N=729, p=1 ... brute=1.5175s, SLQ=0.0292s, GKB=0.0716s
+  Speed test: n=6, N=729, p=2 ... brute=1.3150s, SLQ=0.0590s, GKB=0.0779s
+  Speed test: n=6, N=729, p=inf ... brute=1.5342s, SLQ=0.0135s, GKB=0.0135s
+  Speed test: n=7, N=2187, p=1 ... brute=8.7125s, SLQ=0.0971s, GKB=0.1003s
+  Speed test: n=7, N=2187, p=2 ... brute=8.9929s, SLQ=0.1152s, GKB=0.1000s
+  Speed test: n=7, N=2187, p=inf ... brute=8.0957s, SLQ=0.0182s, GKB=0.0183s
+  Speed test: n=8, N=6561, p=1 ... brute=OOM, SLQ=0.2120s, GKB=0.2045s
+  Speed test: n=8, N=6561, p=2 ... brute=OOM, SLQ=0.2064s, GKB=0.2054s
+  Speed test: n=8, N=6561, p=inf ... brute=OOM, SLQ=0.0317s, GKB=0.0322s
+  Speed test: n=9, N=19683, p=1 ... brute=OOM, SLQ=0.6928s, GKB=0.6587s
+  Speed test: n=9, N=19683, p=2 ... brute=OOM, SLQ=0.6765s, GKB=0.6786s
+  Speed test: n=9, N=19683, p=inf ... brute=OOM, SLQ=0.0761s, GKB=0.0715s
+  Speed test: n=10, N=59049, p=1 ... brute=OOM, SLQ=3.6069s, GKB=3.4377s
+  Speed test: n=10, N=59049, p=2 ... brute=OOM, SLQ=3.3539s, GKB=3.7769s
+  Speed test: n=10, N=59049, p=inf ... brute=OOM, SLQ=0.3458s, GKB=0.4132s
+  Speed test: n=11, N=177147, p=1 ... brute=OOM, SLQ=8.1630s, GKB=8.2408s
+  Speed test: n=11, N=177147, p=2 ... brute=OOM, SLQ=9.3201s, GKB=7.8204s
+  Speed test: n=11, N=177147, p=inf ... brute=OOM, SLQ=1.2801s, GKB=1.2727s
+  Speed test: n=12, N=531441, p=1 ... brute=OOM, SLQ=59.2345s, GKB=57.1120s
+  Speed test: n=12, N=531441, p=2 ... brute=OOM, SLQ=59.4746s, GKB=59.5938s
+  Speed test: n=12, N=531441, p=inf ... brute=OOM, SLQ=5.8288s, GKB=6.8478s
+  Speed test: n=13, N=1594323, p=1 ... brute=OOM, SLQ=160.5881s, GKB=152.8268s
+  Speed test: n=13, N=1594323, p=2 ... brute=OOM, SLQ=157.1107s, GKB=150.1833s
+  Speed test: n=13, N=1594323, p=inf ... brute=OOM, SLQ=16.1131s, GKB=16.7077s
+  Speed test: n=14, N=4782969, p=1 ... brute=OOM, SLQ=444.6210s, GKB=436.4460s
+  Speed test: n=14, N=4782969, p=2 ... ============================================================
+  SCHATTEN p-NORM ESTIMATION VIA KRYLOV METHODS
+  Using linear combinations of 3x3 matrices
+  M = c_1 * A^(x)n + c_2 * B^(x)n
+============================================================
+
+Density matrix A (3x3):
+  Hermitian check: ||A - A^dag||_F = 0.00e+00
+  Trace: 1.0000000000
+
+Density matrix B (3x3):
+  Hermitian check: ||B - B^dag||_F = 0.00e+00
+  Trace: 1.0000000000
+
+Coefficients: [1.0, -0.5]
+
+============================================================
+  ACCURACY EXPERIMENTS (3 Trials)
+============================================================
+
+============================================================
+  Accuracy Evaluation: n=2, N=9×9
+============================================================
+
+  --- p = 1 ---
+  Exact ||M||_1 = 1.10173805 (via tensorpow)
+  SLQ vs m: best rel error = 2.15e-02
+  SLQ vs s: best rel error = 1.89e-02
+  GKB vs l: best rel error = 1.15e-02
+  GKB vs K: best rel error = 8.50e-03
+
+  --- p = 2 ---
+  Exact ||M||_2 = 0.60040677 (via tensorpow)
+  SLQ vs m: best rel error = 2.51e-02
+  SLQ vs s: best rel error = 4.54e-02
+  GKB vs l: best rel error = 7.14e-01
+  GKB vs K: best rel error = 5.34e-01
+
+  --- p = inf ---
+  Exact ||M||_inf = 0.52516170 (via tensorpow)
+  SLQ vs m: best rel error = nan
+  SLQ vs s: best rel error = nan
+  GKB vs l: best rel error = nan
+  GKB vs K: best rel error = nan
+
+============================================================
+  Accuracy Evaluation: n=3, N=27×27
+============================================================
+
+  --- p = 1 ---
+  Exact ||M||_1 = 1.21421719 (via tensorpow)
+  SLQ vs m: best rel error = 3.39e-02
+  SLQ vs s: best rel error = 1.68e-02
+  GKB vs l: best rel error = 4.91e-03
+  GKB vs K: best rel error = 2.77e-02
+
+  --- p = 2 ---
+  Exact ||M||_2 = 0.52749663 (via tensorpow)
+  SLQ vs m: best rel error = 1.78e-03
+  SLQ vs s: best rel error = 2.46e-02
+  GKB vs l: best rel error = 1.02e+00
+  GKB vs K: best rel error = 8.35e-01
+
+  --- p = inf ---
+  Exact ||M||_inf = 0.44184109 (via tensorpow)
+  SLQ vs m: best rel error = nan
+  SLQ vs s: best rel error = nan
+  GKB vs l: best rel error = nan
+  GKB vs K: best rel error = nan
+
+
+Generating accuracy plots...
+  Saved: ./accuracy_n2_p1.png
+  Saved: ./accuracy_n2_p2.png
+  Saved: ./accuracy_n2_pinf.png
+  Saved: ./accuracy_n3_p1.png
+  Saved: ./accuracy_n3_p2.png
+  Saved: ./accuracy_n3_pinf.png
+  Saved: ./combined_accuracy_n2.png
+  Saved: ./combined_accuracy_n3.png
+
+============================================================
+  SPEED EXPERIMENTS (1 Trial)
+============================================================
+  Speed test: n=2, N=9, p=1 ... brute=0.0004s, SLQ=0.0358s, GKB=0.0359s
+  Speed test: n=2, N=9, p=2 ... brute=0.0004s, SLQ=0.0346s, GKB=0.0347s
+  Speed test: n=2, N=9, p=inf ... brute=0.0003s, SLQ=0.0025s, GKB=0.0020s
+  Speed test: n=3, N=27, p=1 ... brute=0.0008s, SLQ=0.0472s, GKB=0.0476s
+  Speed test: n=3, N=27, p=2 ... brute=0.0008s, SLQ=0.0468s, GKB=0.0470s
+  Speed test: n=3, N=27, p=inf ... brute=0.0007s, SLQ=0.0057s, GKB=0.0059s
+  Speed test: n=4, N=81, p=1 ... brute=0.0200s, SLQ=0.0616s, GKB=0.0632s
+  Speed test: n=4, N=81, p=2 ... brute=0.0014s, SLQ=0.0633s, GKB=0.0656s
+  Speed test: n=4, N=81, p=inf ... brute=0.0015s, SLQ=0.0074s, GKB=0.0068s
+  Speed test: n=5, N=243, p=1 ... brute=0.0212s, SLQ=0.0814s, GKB=0.0827s
+  Speed test: n=5, N=243, p=2 ... brute=0.0025s, SLQ=0.0788s, GKB=0.0827s
+  Speed test: n=5, N=243, p=inf ... brute=0.0026s, SLQ=0.0119s, GKB=0.0116s
+  Speed test: n=6, N=729, p=1 ... brute=0.0568s, SLQ=0.1169s, GKB=0.1192s
+  Speed test: n=6, N=729, p=2 ... brute=0.0271s, SLQ=0.1215s, GKB=0.1336s
+  Speed test: n=6, N=729, p=inf ... brute=0.0244s, SLQ=0.0183s, GKB=0.0215s
+  Speed test: n=7, N=2187, p=1 ... brute=0.1781s, SLQ=0.2112s, GKB=0.2061s
+  Speed test: n=7, N=2187, p=2 ... brute=0.1524s, SLQ=0.2062s, GKB=0.1775s
+  Speed test: n=7, N=2187, p=inf ... brute=0.2140s, SLQ=0.0290s, GKB=0.0289s
+  Speed test: n=8, N=6561, p=1 ... brute=OOM, SLQ=0.4210s, GKB=0.4222s
+  Speed test: n=8, N=6561, p=2 ... brute=OOM, SLQ=0.4257s, GKB=0.4034s
+  Speed test: n=8, N=6561, p=inf ... brute=OOM, SLQ=0.0532s, GKB=0.0506s
+  Speed test: n=9, N=19683, p=1 ... brute=OOM, SLQ=1.1921s, GKB=1.1855s
+  Speed test: n=9, N=19683, p=2 ... brute=OOM, SLQ=1.1731s, GKB=1.2421s
+  Speed test: n=9, N=19683, p=inf ... brute=OOM, SLQ=0.1319s, GKB=0.1227s
+  Speed test: n=10, N=59049, p=1 ... brute=OOM, SLQ=5.7646s, GKB=5.2258s
+  Speed test: n=10, N=59049, p=2 ... brute=OOM, SLQ=5.2386s, GKB=5.5811s
+  Speed test: n=10, N=59049, p=inf ... brute=OOM, SLQ=0.5985s, GKB=0.4861s
+  Speed test: n=11, N=177147, p=1 ... brute=OOM, SLQ=19.7818s, GKB=16.1636s
+  Speed test: n=11, N=177147, p=2 ... brute=OOM, SLQ=19.5844s, GKB=16.3902s
+  Speed test: n=11, N=177147, p=inf ... brute=OOM, SLQ=1.8351s, GKB=1.3433s
+  Speed test: n=12, N=531441, p=1 ... brute=OOM, SLQ=104.5068s, GKB=104.8025s
+  Speed test: n=12, N=531441, p=2 ... brute=OOM, SLQ=112.7041s, GKB=107.1694s
+  Speed test: n=12, N=531441, p=inf ... brute=OOM, SLQ=10.3110s, GKB=10.3207s
+  Speed test: n=13, N=1594323, p=1 ...  
+============================================================ 
+[START] Schatten Norm Script Triggered at: Mon 06/08/2026 23:34:16.64 
+============================================================ 
+============================================================ 
+[END] Schatten Norm Script Finished at: Mon 06/08/2026 23:37:27.82 
+============================================================ 
+ 
+ 
+============================================================ 
+[START] Schatten Norm Script Triggered at: Mon 06/08/2026 23:47:52.43 
+============================================================ 
+Checkpoint: Script started.
+Checkpoint: Initializing TensorPowerCalculator...
+Checkpoint: Calculator ready.
+Checkpoint: Starting accuracy loops.
+  n=8 p=1 | Exact: 417.7181 | Est: 423.6528
+  n=8 p=inf | Exact: 7.6552 | Est: 7.6552
+============================================================ 
+[END] Schatten Norm Script Finished at: Mon 06/08/2026 23:57:20.82 
+============================================================ 
+ 
