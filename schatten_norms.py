@@ -301,7 +301,10 @@ def run_accuracy_experiment(matrices, coeffs, n_krons, p_values, m_values, s_val
                 results[key_m]["error"].append(np.median(errors))
             
             best_err = min(results[key_m]["error"])
-            print(f"    GKB vs m (s={s_fixed}): best rel error = {best_err:.2e}")
+            if p == np.inf:
+                print(f"    IRLM vs m: best rel error = {best_err:.2e}")
+            else:
+                print(f"    GKB vs m (s={s_fixed}): best rel error = {best_err:.2e}")
 
             if p == np.inf:
                 continue # Skip Hutchinson sweep for p=inf
@@ -547,7 +550,7 @@ def main():
     
     # Experiment parameters
     n_krons_acc = [8, 11]          # Accuracy at n=8 and n=12
-    m_values = [5, 10, 20, 30, 40] # GKB steps
+    m_values = [2, 3, 4, 5, 10, 20, 30, 40] # GKB steps
     s_values = [2, 5, 10, 20, 50]  # Hutchinson samples
     
     print(f"\nMatrix dimension: d=3")

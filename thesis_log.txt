@@ -253,3 +253,184 @@ Checkpoint: Starting accuracy loops.
 [END] Schatten Norm Script Finished at: Mon 06/08/2026 23:57:20.82 
 ============================================================ 
  
+ 
+============================================================ 
+[START] Schatten Norm Script Triggered at: Tue 06/09/2026 11:46:07.78 
+============================================================ 
+======================================================================
+SCHATTEN p-NORM ESTIMATION VIA GOLUB-KAHAN BIDIAGONALIZATION
+======================================================================
+
+Matrix dimension: d=3
+Linear combination: M = 1.0*A^(x)n + (-0.5)*B^(x)n
+Target tensor powers: n = [8, 11]
+GKB steps range: m = [5, 10, 20, 30, 40]
+Hutchinson samples range: s = [2, 5, 10, 20, 50]
+
+======================================================================
+PHASE 1: ACCURACY BENCHMARKING (vs Exact SU(3) Calculator)
+======================================================================
+
+============================================================
+ACCURACY: n=8, N=6561x6561
+============================================================
+
+  p = 1
+    Exact: 1.43863508
+    GKB vs m (s=50): best rel error = 7.15e-02
+    GKB vs s (m=40): best rel error = 7.12e-02
+
+  p = inf
+    Exact: 0.14546928
+    GKB vs m (s=50): best rel error = 1.91e-16
+
+============================================================
+ACCURACY: n=11, N=177147x177147
+============================================================
+
+  p = 1
+    Exact: 1.47375411
+============================================================ 
+[END] Schatten Norm Script Finished at: Tue 06/09/2026 11:56:43.89 
+============================================================ 
+ 
+ 
+============================================================ 
+[START] Schatten Norm Script Triggered at: Tue 06/09/2026 11:56:54.91 
+============================================================ 
+======================================================================
+SCHATTEN p-NORM ESTIMATION VIA GOLUB-KAHAN BIDIAGONALIZATION
+======================================================================
+
+Matrix dimension: d=3
+Linear combination: M = 1.0*A^(x)n + (-0.5)*B^(x)n
+Target tensor powers: n = [8, 11]
+GKB steps range: m = [5, 10, 20, 30, 40]
+Hutchinson samples range: s = [2, 5, 10, 20, 50]
+
+======================================================================
+PHASE 1: ACCURACY BENCHMARKING (vs Exact SU(3) Calculator)
+======================================================================
+
+============================================================
+ACCURACY: n=8, N=6561x6561
+============================================================
+
+  p = 1
+    Exact: 1.43863508
+    GKB vs m (s=50): best rel error = 7.15e-02
+    GKB vs s (m=40): best rel error = 7.12e-02
+
+  p = inf
+    Exact: 0.14546928
+    IRLM vs m: best rel error = 3.82e-16
+
+============================================================
+ACCURACY: n=11, N=177147x177147
+============================================================
+
+  p = 1
+    Exact: 1.47375411
+[END] Schatten Norm Script Finished at: Tue 06/09/2026 12:06:59.33 
+============================================================ 
+ 
+ 
+============================================================ 
+[START] Schatten Norm Script Triggered at: Tue 06/09/2026 12:07:06.16 
+============================================================ 
+======================================================================
+SCHATTEN p-NORM ESTIMATION VIA GOLUB-KAHAN BIDIAGONALIZATION
+======================================================================
+
+Matrix dimension: d=3
+Linear combination: M = 1.0*A^(x)n + (-0.5)*B^(x)n
+Target tensor powers: n = [8, 11]
+GKB steps range: m = [2, 3, 4, 5, 10, 20, 30, 40]
+Hutchinson samples range: s = [2, 5, 10, 20, 50]
+
+======================================================================
+PHASE 1: ACCURACY BENCHMARKING (vs Exact SU(3) Calculator)
+======================================================================
+
+============================================================
+ACCURACY: n=8, N=6561x6561
+============================================================
+
+  p = 1
+    Exact: 1.43863508
+    GKB vs m (s=50): best rel error = 5.65e-02
+    GKB vs s (m=40): best rel error = 1.98e-02
+
+  p = inf
+    Exact: 0.14546928
+    IRLM vs m: best rel error = 1.91e-16
+
+============================================================
+ACCURACY: n=11, N=177147x177147
+============================================================
+
+  p = 1
+    Exact: 1.47375411
+    GKB vs m (s=50): best rel error = 4.52e-01
+    GKB vs s (m=40): best rel error = 4.16e-01
+
+  p = inf
+    Exact: 0.07132411
+    IRLM vs m: best rel error = 1.95e-16
+
+Generating accuracy plots...
+  Saved: ./accuracy_n8_p1.png
+  Saved: ./accuracy_n8_pinf.png
+  Saved: ./accuracy_n11_p1.png
+  Saved: ./accuracy_n11_pinf.png
+
+======================================================================
+PHASE 2: SPEED BENCHMARKING (Dense SVD vs GKB)
+======================================================================
+
+============================================================
+SPEED BENCHMARK (n=2 to 10)
+============================================================
+  n= 2 (N=      9) p=1   ... BruteForce=0.00s, Krylov=0.14s
+  n= 2 (N=      9) p=inf ... BruteForce=0.00s, Krylov=0.00s
+  n= 3 (N=     27) p=1   ... BruteForce=0.00s, Krylov=0.19s
+  n= 3 (N=     27) p=inf ... BruteForce=0.00s, Krylov=0.01s
+  n= 4 (N=     81) p=1   ... BruteForce=0.01s, Krylov=0.25s
+  n= 4 (N=     81) p=inf ... BruteForce=0.01s, Krylov=0.01s
+  n= 5 (N=    243) p=1   ... BruteForce=0.18s, Krylov=0.31s
+  n= 5 (N=    243) p=inf ... BruteForce=0.20s, Krylov=0.01s
+  n= 6 (N=    729) p=1   ... BruteForce=1.48s, Krylov=0.47s
+  n= 6 (N=    729) p=inf ... BruteForce=1.22s, Krylov=0.02s
+  n= 7 (N=   2187) p=1   ... BruteForce=9.05s, Krylov=0.84s
+  n= 7 (N=   2187) p=inf ... BruteForce=8.46s, Krylov=0.03s
+  n= 8 (N=   6561) p=1   ... BruteForce=120.72s, Krylov=1.76s
+  n= 8 (N=   6561) p=inf ... BruteForce=120.97s, Krylov=0.05s
+  n= 9 (N=  19683) p=1   ... BruteForce=2388.03s, Krylov=4.73s
+  n= 9 (N=  19683) p=inf ... BruteForce=2388.03s, Krylov=0.12s
+  n=10 (N=  59049) p=1   ... BruteForce=OOM BruteForce=OOM, Krylov=24.05s
+  n=10 (N=  59049) p=inf ... BruteForce=OOM BruteForce=OOM, Krylov=0.62s
+  n=11 (N= 177147) p=1   ... BruteForce=OOM BruteForce=OOM, Krylov=63.59s
+  n=11 (N= 177147) p=inf ... BruteForce=OOM BruteForce=OOM, Krylov=2.66s
+  n=12 (N= 531441) p=1   ... BruteForce=OOM BruteForce=OOM, Krylov=449.43s
+  n=12 (N= 531441) p=inf ... BruteForce=OOM BruteForce=OOM, Krylov=14.60s
+
+Generating speed plot...
+  Saved: speed_comparison.png
+
+======================================================================
+PHASE 3: ANALYTICAL MEMORY SCALING
+======================================================================
+  Saved: memory_analytical_comparison.png
+
+======================================================================
+ALL BENCHMARKS COMPLETED SUCCESSFULLY
+Generated files:
+  - accuracy_n8_p1.png / accuracy_n8_pinf.png
+  - accuracy_n11_p1.png / accuracy_n11_pinf.png
+  - speed_comparison.png
+  - memory_analytical_comparison.png
+======================================================================
+============================================================ 
+[END] Schatten Norm Script Finished at: Tue 06/09/2026 13:01:44.31 
+============================================================ 
+ 
